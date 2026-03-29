@@ -1,0 +1,101 @@
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 md:mb-12 animate-fade-in space-y-4 sm:space-y-0 relative z-50">
+  <div>
+    <h1 class="text-3xl md:text-4xl font-bold font-outfit text-gray-800 dark:text-white tracking-tight transition-colors">Invoices</h1>
+    <p class="text-sm md:text-base text-gray-500 dark:text-gray-400 mt-1 sm:hidden"> {{ invoiceCount }} invoices</p>
+    <p class="text-sm md:text-base text-gray-500 dark:text-gray-400 mt-1 hidden sm:block">
+      <span *ngIf="selectedFiltersList.length === 0">There are {{ invoiceCount }} total invoices</span>
+      <span *ngIf="selectedFiltersList.length > 0">Showing {{ invoiceCount }} {{ selectedFiltersList.join(' and ').toLowerCase() }} invoices</span>
+    </p>
+  </div>
+
+  <div class="flex items-center space-x-4 md:space-x-8 w-full sm:w-auto justify-between sm:justify-start">
+    <div class="relative w-full sm:w-auto flex justify-end">
+      <!-- Active filters display chips desktop -->
+      <div class="hidden lg:flex items-center space-x-2 mr-4" *ngIf="selectedFiltersList.length > 0">
+        <span *ngFor="let filter of selectedFiltersList" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-[#7c5dfa]/10 text-[#7c5dfa]">
+          {{ filter }}
+          <button (click)="toggleFilter(filter); $event.stopPropagation()" class="ml-1.5 focus:outline-none">
+            <i class="fas fa-times text-[10px] opacity-70 hover:opacity-100 transition-opacity"></i>
+          </button>
+        </span>
+      </div>
+
+      <button (click)="toggleFilterMenu($event)" class="text-gray-800 dark:text-white font-bold flex items-center hover:text-brand dark:hover:text-brand-light transition-colors focus:outline-none group">
+        <span class="mr-3">{{ filterLabel }}</span>
+        <i class="fas text-brand transition-transform duration-300 transform group-hover:-translate-y-0.5" [ngClass]="showFilterMenu ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+      </button>
+
+      <!-- Advanced SaaS Dropdown -->
+      <div class="absolute right-0 top-full mt-4 w-56 bg-white dark:bg-brand-darkCard rounded-xl shadow-float dark:shadow-dark-float z-20 border border-gray-100 dark:border-gray-800 transition-all duration-300 origin-top-right transform"
+           [ngClass]="showFilterMenu ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible pointer-events-none'">
+        
+        <div class="p-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
+          <span class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Filter by Status</span>
+          <button *ngIf="selectedFiltersList.length > 0" (click)="clearFilters($event)" class="text-xs font-bold text-brand hover:text-brand-light transition-colors focus:outline-none">Clear</button>
+        </div>
+
+        <ul class="py-2 flex flex-col space-y-1 px-2">
+          <!-- Pending Option -->
+          <li>
+            <label for="pending" class="flex items-center justify-between cursor-pointer w-full p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-brand-darkSurface transition-colors group relative">
+              <div class="flex items-center">
+                <div class="relative flex items-center justify-center w-5 h-5 mr-3">
+                  <input type="checkbox" id="pending" class="sr-only" (change)="toggleFilter('Pending')" [checked]="selectedFilters.has('Pending')">
+                  <div class="w-5 h-5 border-2 rounded transition-colors" [ngClass]="selectedFilters.has('Pending') ? 'bg-[#7c5dfa] border-[#7c5dfa]' : 'border-gray-300 dark:border-gray-600 bg-transparent group-hover:border-[#7c5dfa]'"></div>
+                  <i *ngIf="selectedFilters.has('Pending')" class="fas fa-check text-white text-[10px] absolute pointer-events-none"></i>
+                </div>
+                <span class="font-bold text-gray-800 dark:text-white flex items-center">
+                  <span class="w-2 h-2 rounded-full bg-amber-500 mr-2"></span> Pending
+                </span>
+              </div>
+              <span class="text-xs font-bold text-gray-400 dark:text-gray-500 group-hover:text-amber-500 transition-colors">{{ statusCounts.Pending }}</span>
+            </label>
+          </li>
+
+          <!-- Paid Option -->
+          <li>
+            <label for="paid" class="flex items-center justify-between cursor-pointer w-full p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-brand-darkSurface transition-colors group relative">
+              <div class="flex items-center">
+                <div class="relative flex items-center justify-center w-5 h-5 mr-3">
+                  <input type="checkbox" id="paid" class="sr-only" (change)="toggleFilter('Paid')" [checked]="selectedFilters.has('Paid')">
+                  <div class="w-5 h-5 border-2 rounded transition-colors" [ngClass]="selectedFilters.has('Paid') ? 'bg-[#7c5dfa] border-[#7c5dfa]' : 'border-gray-300 dark:border-gray-600 bg-transparent group-hover:border-[#7c5dfa]'"></div>
+                  <i *ngIf="selectedFilters.has('Paid')" class="fas fa-check text-white text-[10px] absolute pointer-events-none"></i>
+                </div>
+                <span class="font-bold text-gray-800 dark:text-white flex items-center">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500 mr-2"></span> Paid
+                </span>
+              </div>
+              <span class="text-xs font-bold text-gray-400 dark:text-gray-500 group-hover:text-emerald-500 transition-colors">{{ statusCounts.Paid }}</span>
+            </label>
+          </li>
+
+          <!-- Draft Option -->
+          <li>
+            <label for="draft" class="flex items-center justify-between cursor-pointer w-full p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-brand-darkSurface transition-colors group relative">
+              <div class="flex items-center">
+                <div class="relative flex items-center justify-center w-5 h-5 mr-3">
+                  <input type="checkbox" id="draft" class="sr-only" (change)="toggleFilter('Draft')" [checked]="selectedFilters.has('Draft')">
+                  <div class="w-5 h-5 border-2 rounded transition-colors" [ngClass]="selectedFilters.has('Draft') ? 'bg-[#7c5dfa] border-[#7c5dfa]' : 'border-gray-300 dark:border-gray-600 bg-transparent group-hover:border-[#7c5dfa]'"></div>
+                  <i *ngIf="selectedFilters.has('Draft')" class="fas fa-check text-white text-[10px] absolute pointer-events-none"></i>
+                </div>
+                <span class="font-bold text-gray-800 dark:text-white flex items-center">
+                  <span class="w-2 h-2 rounded-full bg-gray-400 dark:bg-gray-500 mr-2"></span> Draft
+                </span>
+              </div>
+              <span class="text-xs font-bold text-gray-400 dark:text-gray-500 group-hover:text-gray-400 transition-colors">{{ statusCounts.Draft }}</span>
+            </label>
+          </li>
+        </ul>
+      </div>
+    </div>
+    
+    <button (click)="openModal()" class="bg-brand hover:bg-brand-light text-white font-bold py-2 pr-4 pl-2 rounded-full flex items-center transition-all duration-300 shadow-soft focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand transform hover:-translate-y-0.5 hover:shadow-float">
+      <div class="bg-white text-brand rounded-full w-8 h-8 flex items-center justify-center mr-2 md:mr-4 pointer-events-none">
+        <i class="fas fa-plus hidden md:block"></i>
+        <i class="fas fa-plus fa-sm md:hidden"></i>
+      </div>
+      <span class="hidden sm:block mt-0.5 font-outfit">New Invoice</span>
+      <span class="block sm:hidden mt-0.5 font-outfit">New</span>
+    </button>
+  </div>
+</div>

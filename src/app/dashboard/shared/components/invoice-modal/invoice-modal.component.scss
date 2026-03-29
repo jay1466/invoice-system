@@ -1,0 +1,14 @@
+.scrollbar{
+  border-right: 18px solid transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #4a5568;
+    border-radius: 10px;
+  }
+
+
+}

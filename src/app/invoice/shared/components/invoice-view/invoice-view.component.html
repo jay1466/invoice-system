@@ -1,0 +1,210 @@
+<div class="max-w-4xl mx-auto py-8 px-4 md:px-0 font-inter transition-colors duration-300">
+  <button class="font-bold flex items-center text-gray-800 dark:text-white hover:text-brand dark:hover:text-brand-light transition-all duration-300 mb-8 group" (click)="goToDashboard()">
+    <i class="fa-solid fa-chevron-left text-sm mr-4 text-brand transform group-hover:-translate-x-1 transition-transform duration-300"></i>
+    <span class="mt-0.5">Go back</span>
+  </button>
+
+  <div class="bg-white dark:bg-brand-darkCard shadow-soft dark:shadow-dark-float rounded-xl p-6 md:p-8 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 transition-colors duration-300 transform hover:-translate-y-1">
+    <div class="flex items-center space-x-4 w-full sm:w-auto justify-between sm:justify-start">
+      <p class="font-medium text-gray-500 dark:text-gray-400 text-sm">Status</p>
+      <span *ngIf="!isEditing" class="inline-flex items-center justify-center px-6 py-3 rounded-lg text-xs font-bold min-w-[104px] text-center transition-colors duration-300 relative overflow-hidden" [ngClass]="{
+            'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500': invoice?.status === 'Paid',
+            'bg-amber-50 dark:bg-amber-500/10 text-amber-500': invoice?.status === 'Pending',
+            'bg-gray-100 dark:bg-brand-darkSurface text-gray-700 dark:text-gray-300': invoice?.status === 'Draft' || !invoice?.status
+          }">
+        <span class="inline-block w-2 h-2 mr-2 rounded-full" [ngClass]="{
+              'bg-emerald-500': invoice?.status === 'Paid',
+              'bg-amber-500': invoice?.status === 'Pending',
+              'bg-gray-700 dark:bg-gray-400': invoice?.status === 'Draft' || !invoice?.status
+            }"></span>
+        <span class="mt-0.5 relative z-10">{{ invoice?.status || 'Draft' }}</span>
+      </span>
+      <select *ngIf="isEditing" [(ngModel)]="invoice.status" class="w-32 px-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-brand-darkSurface text-gray-800 dark:text-white rounded-lg shadow-sm focus:outline-none focus:ring-brand focus:border-brand font-medium transition-colors">
+        <option value="Paid">Paid</option>
+        <option value="Pending">Pending</option>
+        <option value="Draft">Draft</option>
+      </select>
+    </div>
+
+    <div class="flex space-x-2 sm:space-x-4 w-full sm:w-auto justify-between sm:justify-end">
+      <button class="px-4 sm:px-6 py-3 bg-gray-100 dark:bg-brand-darkSurface text-gray-600 dark:text-gray-300 rounded-full font-bold text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors" (click)="toggleEditMode()">
+        <span *ngIf="!isEditing">Edit</span>
+        <span *ngIf="isEditing">Cancel Edit</span>
+      </button>
+      <button class="px-4 sm:px-6 py-3 bg-red-50 dark:bg-red-500/10 text-red-500 rounded-full font-bold text-sm hover:bg-red-500 hover:text-white dark:hover:bg-red-500 dark:hover:text-white transition-colors" (click)="deleteInvoice()">
+        Delete
+      </button>
+      <button class="px-4 sm:px-6 py-3 bg-brand text-white rounded-full font-bold text-sm hover:bg-brand-light transition-colors shadow-soft dark:shadow-dark-float transform hover:-translate-y-0.5" *ngIf="!isEditing" (click)="generatePDF()">
+        <i class="fas fa-file-pdf mr-2 hidden sm:inline"></i> Print
+      </button>
+      <button class="px-4 sm:px-6 py-3 bg-emerald-500 text-white rounded-full font-bold text-sm hover:bg-emerald-400 transition-colors shadow-soft dark:shadow-dark-float transform hover:-translate-y-0.5" *ngIf="isEditing" (click)="saveInvoice()">
+        Save Changes
+      </button>
+    </div>
+  </div>
+
+  <div id="invoice-content" class="bg-white dark:bg-brand-darkCard shadow-soft dark:shadow-dark-float rounded-xl p-8 md:p-12 pb-16 transition-colors duration-300 relative">
+    <div class="flex flex-col md:flex-row justify-between md:items-start mb-12 space-y-8 md:space-y-0">
+      <div class="w-full md:w-1/2 flex flex-col justify-start">
+        <h1 class="text-3xl font-bold font-outfit text-gray-800 dark:text-white mb-2">
+          <span class="text-[#7e88c3]">#</span><span *ngIf="!isEditing">{{ invoice.invoiceNumber }}</span>
+          <input *ngIf="isEditing" [(ngModel)]="invoice.invoiceNumber" class="border-b-2 border-gray-300 dark:border-gray-700 bg-transparent text-gray-800 dark:text-white focus:border-brand outline-none pb-1 w-32 font-bold font-outfit transition-colors" placeholder="Invoice ID" />
+        </h1>
+        <p class="text-gray-500 dark:text-gray-400 font-medium">
+          <span *ngIf="!isEditing">{{ invoice.description || 'No description' }}</span>
+          <input *ngIf="isEditing" [(ngModel)]="invoice.description" class="border-b border-gray-300 dark:border-gray-700 bg-transparent text-gray-800 dark:text-gray-300 focus:border-brand outline-none pb-1 w-full max-w-xs mt-1 transition-colors" placeholder="Description e.g. Graphic Design" />
+        </p>
+      </div>
+      <div class="w-full md:w-1/2 flex flex-col text-gray-400 md:items-end md:text-right text-sm font-medium">
+        <div class="w-full max-w-[200px]">
+          <p class="mb-1">
+            <span *ngIf="!isEditing">{{ invoice.streetAddress || '123 Sender Street' }}</span>
+            <input *ngIf="isEditing" [(ngModel)]="invoice.streetAddress" class="border-b border-gray-300 dark:border-gray-700 bg-transparent text-gray-800 dark:text-gray-300 outline-none w-full md:text-right transition-colors" placeholder="Street Address" />
+          </p>
+          <p class="mb-1">
+            <span *ngIf="!isEditing">{{ invoice.city || 'Sender City' }}</span>
+            <input *ngIf="isEditing" [(ngModel)]="invoice.city" class="border-b border-gray-300 dark:border-gray-700 bg-transparent text-gray-800 dark:text-gray-300 outline-none w-full md:text-right transition-colors" placeholder="City" />
+          </p>
+          <p class="mb-1">
+            <span *ngIf="!isEditing">{{ invoice.postCode || '10000' }}</span>
+            <input *ngIf="isEditing" [(ngModel)]="invoice.postCode" class="border-b border-gray-300 dark:border-gray-700 bg-transparent text-gray-800 dark:text-gray-300 outline-none w-full md:text-right transition-colors" placeholder="Post Code" />
+          </p>
+          <p>
+            <span *ngIf="!isEditing">{{ invoice.email }}</span>
+            <input *ngIf="isEditing" [(ngModel)]="invoice.email" class="border-b border-gray-300 dark:border-gray-700 bg-transparent text-gray-800 dark:text-gray-300 outline-none w-full md:text-right transition-colors" placeholder="Sender Email" />
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Middle section -->
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-8 mb-12">
+      <div class="flex flex-col space-y-8">
+        <div>
+          <h3 class="text-sm font-medium text-gray-400 dark:text-gray-500 mb-3">Invoice Date</h3>
+          <p class="text-lg font-bold text-gray-800 dark:text-white font-outfit">
+            <span *ngIf="!isEditing">{{ invoice.date | date:'dd MMM yyyy' }}</span>
+            <input *ngIf="isEditing" [(ngModel)]="invoice.date" type="date" class="border-b border-gray-300 dark:border-gray-700 bg-transparent text-gray-800 dark:text-white outline-none font-bold transition-colors [&::-webkit-calendar-picker-indicator]:dark:invert" />
+          </p>
+        </div>
+        <div>
+          <h3 class="text-sm font-medium text-gray-400 dark:text-gray-500 mb-3">Payment Due</h3>
+          <p class="text-lg font-bold text-gray-800 dark:text-white font-outfit">
+             <!-- using same date for due date for simplicity like current codebase -->
+            <span *ngIf="!isEditing">{{ invoice.date | date:'dd MMM yyyy' }}</span>
+            <input *ngIf="isEditing" [(ngModel)]="invoice.date" type="date" class="border-b border-gray-300 dark:border-gray-700 bg-transparent outline-none font-bold text-gray-400 dark:text-gray-600 transition-colors [&::-webkit-calendar-picker-indicator]:dark:invert" disabled />
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="text-sm font-medium text-gray-400 dark:text-gray-500 mb-3">Bill To</h3>
+        <p class="text-lg font-bold text-gray-800 dark:text-white font-outfit mb-2">
+          <span *ngIf="!isEditing">{{ invoice.clientName || 'Client Name' }}</span>
+          <input *ngIf="isEditing" [(ngModel)]="invoice.clientName" class="border-b border-gray-300 dark:border-gray-700 bg-transparent text-gray-800 dark:text-white outline-none w-full font-bold transition-colors" placeholder="Client Name" />
+        </p>
+        <div class="text-gray-400 dark:text-gray-500 text-sm font-medium">
+          <p class="mb-1">
+            <span *ngIf="!isEditing">{{ invoice.clientStreetAddress || 'Client Address' }}</span>
+            <input *ngIf="isEditing" [(ngModel)]="invoice.clientStreetAddress" class="border-b border-gray-300 dark:border-gray-700 bg-transparent text-gray-800 dark:text-gray-300 outline-none w-full transition-colors" placeholder="Street Address" />
+          </p>
+          <p class="mb-1">
+            <span *ngIf="!isEditing">{{ invoice.clientCity || 'Client City' }}</span>
+            <input *ngIf="isEditing" [(ngModel)]="invoice.clientCity" class="border-b border-gray-300 dark:border-gray-700 bg-transparent text-gray-800 dark:text-gray-300 outline-none w-full transition-colors" placeholder="City" />
+          </p>
+          <p>
+            <span *ngIf="!isEditing">{{ invoice.clientPostCode || 'Client Post Code' }}</span>
+            <input *ngIf="isEditing" [(ngModel)]="invoice.clientPostCode" class="border-b border-gray-300 dark:border-gray-700 bg-transparent text-gray-800 dark:text-gray-300 outline-none w-full transition-colors" placeholder="Post Code" />
+          </p>
+        </div>
+      </div>
+      
+      <div class="col-span-2 md:col-span-1">
+        <h3 class="text-sm font-medium text-gray-400 dark:text-gray-500 mb-3">Sent to</h3>
+        <p class="text-lg font-bold text-gray-800 dark:text-white font-outfit">
+          <span *ngIf="!isEditing">{{ invoice.clientEmail || 'client@example.com' }}</span>
+          <input *ngIf="isEditing" [(ngModel)]="invoice.clientEmail" class="border-b border-gray-300 dark:border-gray-700 bg-transparent text-gray-800 dark:text-white outline-none w-full font-bold transition-colors" placeholder="Email Address" />
+        </p>
+      </div>
+    </div>
+
+    <!-- Items Section -->
+    <div class="bg-gray-50 dark:bg-brand-darkSurface rounded-xl rounded-b-none overflow-hidden mt-8 md:mt-12 transition-colors duration-300 border border-gray-100 dark:border-transparent">
+      <div class="p-6 md:p-8">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="text-xs font-medium text-gray-400 dark:text-gray-500">
+              <th class="pb-6 font-medium tracking-wide">Item Name</th>
+              <th class="pb-6 text-center font-medium tracking-wide">QTY.</th>
+              <th class="pb-6 text-right font-medium tracking-wide">Price</th>
+              <th class="pb-6 text-right font-medium tracking-wide">Total</th>
+              <th *ngIf="isEditing" class="pb-6 pl-4 text-center font-medium"></th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-800 dark:text-white font-bold font-outfit">
+            <tr *ngFor="let item of invoice.items; let i = index" class="mb-4">
+              <td class="pb-4 pt-2 group">
+                <span *ngIf="!isEditing" class="group-hover:text-brand transition-colors cursor-default">{{ item.itemName || 'Item Description' }}</span>
+                <input *ngIf="isEditing" [(ngModel)]="item.itemName" class="border border-gray-200 dark:border-gray-700 bg-white dark:bg-brand-darkCard text-gray-800 dark:text-gray-300 rounded px-3 py-2 outline-none w-full max-w-[200px] transition-colors focus:border-brand" placeholder="Item name" />
+              </td>
+              <td class="pb-4 pt-2 text-center text-gray-500 dark:text-gray-400 font-medium">
+                <span *ngIf="!isEditing">{{ item.itemQuantity || 0 }}</span>
+                <input *ngIf="isEditing" type="number" [(ngModel)]="item.itemQuantity" class="border border-gray-200 dark:border-gray-700 bg-white dark:bg-brand-darkCard text-gray-800 dark:text-gray-300 rounded px-2 py-2 outline-none w-16 text-center transition-colors focus:border-brand" (input)="calculateTotalAmount()" />
+              </td>
+              <td class="pb-4 pt-2 text-right text-gray-500 dark:text-gray-400 font-medium">
+                <span *ngIf="!isEditing">{{ item.itemPrice | currency:'INR':'symbol':'1.0-0' }}</span>
+                <input *ngIf="isEditing" type="number" [(ngModel)]="item.itemPrice" class="border border-gray-200 dark:border-gray-700 bg-white dark:bg-brand-darkCard text-gray-800 dark:text-gray-300 rounded px-3 py-2 outline-none w-24 text-right transition-colors focus:border-brand" (input)="calculateTotalAmount()" />
+              </td>
+              <td class="pb-4 pt-2 text-right">
+                <span *ngIf="!isEditing">{{ item.itemTotal | currency:'INR':'symbol':'1.0-0' }}</span>
+                <input *ngIf="isEditing" type="number" [(ngModel)]="item.itemTotal" class="bg-transparent text-gray-800 dark:text-white outline-none w-24 text-right font-bold transition-colors" disabled />
+              </td>
+              <td *ngIf="isEditing" class="pb-4 pt-2 pl-4 text-center">
+                <button class="text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors" (click)="removeItem(i)">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <div *ngIf="isEditing" class="mt-4 pb-2 w-full">
+          <button type="button" class="w-full bg-gray-200 dark:bg-brand-darkCard text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-800 py-3 rounded-full font-bold text-sm transition-colors" (click)="addItem()">
+            + Add New Item
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Grand Total Bottom Bar -->
+    <div class="bg-[#373b53] dark:bg-black rounded-bl-xl rounded-br-xl p-6 md:px-8 md:py-8 flex justify-between items-center text-white transition-colors duration-300">
+      <p class="text-sm font-medium">Amount Due</p>
+      <p class="text-2xl md:text-3xl font-bold font-outfit">{{ invoice.totalAmount | currency:'INR':'symbol':'1.0-0' }}</p>
+    </div>
+
+    <!-- Tanda Terima -->
+    <div class="flex flex-col md:flex-row justify-between mt-16 text-xs text-gray-400 dark:text-gray-500 font-medium border-t border-gray-100 dark:border-gray-800 pt-8 transition-colors">
+      <div class="mb-4 md:mb-0">
+        <p class="font-bold text-gray-500 dark:text-gray-400 mb-1">NOTES</p>
+        <p class="max-w-xs">All goods are sold as-is and are not eligible for return or exchange. Full payment is deemed received only upon successful credit to our designated account.</p>
+      </div>
+      <div class="text-right">
+        <p class="font-bold text-gray-500 dark:text-gray-400 mb-10">Authorized Signature</p>
+        <p class="border-t border-gray-300 dark:border-gray-700 pt-2 inline-block w-32 border-dashed">{{ invoice.name || 'Authorized Representative' }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Wrapper (Hidden by Default, can be enabled/animated via TS or CSS trick) -->
+  <div class="fixed bottom-8 right-8 z-50 transform transition-all duration-500 transform translate-y-24 opacity-0 pointer-events-none" id="saveToast" [ngClass]="isEditing ? 'translate-y-24 opacity-0' : 'translate-y-24 opacity-0'">
+    <div class="bg-gray-800 dark:bg-white text-white dark:text-gray-900 px-6 py-4 rounded-xl shadow-2xl flex items-center space-x-4">
+      <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center">
+        <i class="fas fa-check text-white text-sm"></i>
+      </div>
+      <div>
+        <p class="font-bold text-sm">Successfully saved</p>
+        <p class="text-xs text-gray-400 dark:text-gray-500 font-medium mt-0.5">Your invoice has been updated.</p>
+      </div>
+    </div>
+  </div>
+</div>

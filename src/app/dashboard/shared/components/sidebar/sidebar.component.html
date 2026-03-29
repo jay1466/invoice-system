@@ -1,0 +1,36 @@
+<aside class="bg-brand-surface dark:bg-brand-darkSurface text-white flex flex-row justify-between w-full py-4 px-6 md:p-0 md:w-[104px] md:min-h-screen md:flex md:flex-col md:rounded-r-[32px] shadow-lg sticky top-0 z-50 transition-colors duration-300">
+  <div class="flex justify-center items-center w-16 md:w-full md:h-[104px] bg-brand rounded-r-[20px] md:rounded-tr-[32px] md:rounded-br-[32px] md:rounded-bl-none relative overflow-hidden group shadow-md">
+    <div class="absolute bottom-0 w-full h-1/2 bg-brand-light rounded-tl-[20px] md:rounded-tl-[32px] transition-all duration-300 ease-out transform translate-y-2 group-hover:h-[60%] group-hover:translate-y-0"></div>
+    <i class="fa-solid fa-file-invoice fa-2x relative z-10 text-white group-hover:scale-110 transition-transform duration-300"></i>
+  </div>
+
+  <div class="relative mt-auto pt-0 md:pt-6 md:pb-6 md:border-t border-[#494e6e] flex flex-row md:flex-col items-center justify-end space-x-6 md:space-x-0 md:space-y-8">
+    
+    <!-- Dark Mode Toggle Button (UI Only) -->
+    <button class="text-[#7e88c3] hover:text-white dark:text-gray-400 dark:hover:text-[#7e88c3] focus:outline-none transition-all duration-500 transform hover:rotate-180" title="Toggle Theme (Coming Soon)">
+       <i class="fas fa-moon text-xl block dark:hidden"></i>
+       <i class="fas fa-sun text-xl hidden dark:block"></i>
+    </button>
+    
+    <!-- Desktop Separator -->
+    <div class="w-px md:w-full h-8 md:h-px bg-[#494e6e] opacity-50 block md:mb-6 mt-6 hidden md:block"></div>
+    <!-- Mobile Separator -->
+    <div class="w-px h-8 bg-[#494e6e] opacity-50 block md:hidden"></div>
+    
+    <div class="flex justify-center flex-col items-center px-4 cursor-pointer hover:opacity-80 transition-opacity" (click)="toggleMenu()">
+      <div class="w-10 h-10 rounded-full border border-gray-400 hover:border-brand-light transition duration-300 overflow-hidden bg-white flex items-center justify-center">
+        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Profile avatar" class="w-full h-full object-cover">
+      </div>
+    </div>
+    
+    <!-- User Menu -->
+    <ul *ngIf="showMenu" class="absolute bottom-[-10px] right-20 md:bottom-20 md:right-auto md:left-full md:ml-6 w-48 bg-white dark:bg-brand-darkCard text-gray-800 dark:text-white rounded-xl shadow-float dark:shadow-dark-float z-50 overflow-hidden font-inter transform transition-all border border-gray-100 dark:border-gray-700">
+      <li class="border-b border-gray-100 dark:border-gray-700">
+        <a href="#" class="block py-3 px-5 hover:bg-gray-50 dark:hover:bg-brand-darkSurface transition-colors text-sm font-medium flex items-center"><i class="fas fa-cog w-5 mr-2 text-gray-400 dark:text-gray-500"></i> Settings</a>
+      </li>
+      <li>
+        <a href="#" (click)="logout()" class="block py-3 px-5 hover:bg-red-50 dark:hover:bg-red-900/10 hover:text-red-500 transition-colors text-sm font-medium flex items-center"><i class="fas fa-sign-out-alt w-5 mr-2 text-red-400"></i> Logout</a>
+      </li>
+    </ul>
+  </div>
+</aside>
